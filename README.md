@@ -5,6 +5,7 @@ Aplikasi web statis untuk melihat informasi bahan ajar, memantau stok, dan melac
 ## Fitur
 
 - **Login**: autentikasi sederhana dengan email dan kata sandi, dilengkapi tombol tampil/sembunyikan kata sandi dan pesan kesalahan yang berbeda untuk email tidak terdaftar maupun kata sandi salah.
+- **Daftar akun**: tombol "Belum punya akun? Daftar" pada halaman login membuka modal box pendaftaran (nama, email, kata sandi, konfirmasi kata sandi) dengan validasi kolom kosong, panjang kata sandi minimal 6 karakter, kecocokan konfirmasi, dan email yang belum terdaftar. Akun baru disimpan di `localStorage` sehingga bisa dipakai untuk login berikutnya.
 - **Dashboard**: sambutan dengan nama pengguna yang sedang login dan pencarian bahan ajar (berdasarkan kode atau nama) secara langsung saat mengetik.
 - **Stok**: daftar seluruh bahan ajar lengkap dengan cover, kode, jenis, edisi, dan jumlah stok, serta kolom pencarian.
 - **Tracking**: pelacakan pengiriman berdasarkan nomor DO, menampilkan detail pengiriman dan linimasa perjalanan paket (data terbaru di posisi paling atas).
@@ -77,6 +78,7 @@ Aplikasi web statis untuk melihat informasi bahan ajar, memantau stok, dan melac
 ## Catatan
 
 - Aplikasi ini hanya untuk keperluan pembelajaran. Kata sandi disimpan sebagai teks biasa di `data.js` dan autentikasi dilakukan di sisi klien, sehingga **tidak aman untuk penggunaan produksi**.
+- Akun hasil pendaftaran hanya tersimpan di browser yang dipakai mendaftar (`localStorage`), bukan di `data.js`, dan hilang jika data situs dihapus.
 - Menu **Contact Us** pada Dashboard, Stok, dan Tracking saat ini masih berupa anchor (`#ContactUs`) dan belum mengarah ke bagian khusus.
 - Pada `Stok.html` tautan menu memakai `stok.html` (huruf kecil). Pada server yang membedakan huruf besar/kecil (misalnya Linux), samakan penulisan dengan nama file `Stok.html`.
 - Data tracking `2023005678` pada `data.js` memiliki properti `nomorDO` bernilai `2023001234`. Tampilan tidak terpengaruh karena yang ditampilkan adalah kode yang dicari, tetapi sebaiknya diperbaiki agar konsisten.
