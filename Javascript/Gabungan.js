@@ -1,4 +1,19 @@
+// Menggabungkan akun hasil pendaftaran (disimpan di localStorage) ke dataPengguna
+function muatPenggunaBaru() {
+    try {
+        const tersimpan = JSON.parse(localStorage.getItem("penggunaBaru")) || [];
+        tersimpan.forEach(function (u) {
+            const sudahAda = dataPengguna.some(function (d) { return d.email === u.email; });
+            if (!sudahAda) dataPengguna.push(u);
+        });
+    } catch (err) {
+        // localStorage tidak tersedia / data rusak: abaikan, pakai data bawaan saja
+    }
+}
+
 function initLogin() {
+    muatPenggunaBaru();
+
     const inputs = document.querySelectorAll(".input");
 
     function addFocusClass() {
@@ -33,14 +48,14 @@ function initLogin() {
     document.getElementById("formLogin").addEventListener("submit", function (e) {
         e.preventDefault();
 
-        const email = document.getElementById("email").value.trim();
+        const email = document.getElementById("email").value.trim().toLowerCase();
         const password = document.getElementById("password").value;
 
         const user = dataPengguna.find(u => u.email === email);
 
         if (user && user.password === password) {
             sessionStorage.setItem("userLogin", JSON.stringify(user));
-            alert("Selamat datang " + user.nama + " di PBA UT Medan");
+            alert("Selamat datang " + user.nama + " di SITTA UT Medan");
             window.location.href = "dashboard.html";
         } else if (user) {
             alert("Aduhhh, maaf " + user.nama + ", kata sandi anda yang masukkan salahh.... coba ulangi");
@@ -49,6 +64,103 @@ function initLogin() {
         } else {
             alert("Aduhhh, maaf, email anda tidak terdaftar.... coba ulangi");
         }
+    });
+}
+
+function initDaftar() {
+    const modalDaftar = document.getElementById("modalDaftar");
+    const formDaftar = document.getElementById("formDaftar");
+    const linkDaftar = document.getElementById("linkDaftar");
+    const tutupDaftar = document.getElementById("tutupDaftar");
+
+    if (!modalDaftar || !formDaftar || !linkDaftar || !tutupDaftar) return;
+
+    function bukaModal() {
+        modalDaftar.hidden = false;
+        document.getElementById("daftarNama").focus();
+    }
+
+    function tutupModal() {
+        modalDaftar.hidden = true;
+    }
+
+    linkDaftar.addEventListener("click", bukaModal);
+    tutupDaftar.addEventListener("click", tutupModal);
+
+    // klik area gelap di luar kotak modal juga menutup modal
+    modalDaftar.addEventListener("click", function (e) {
+        if (e.target === modalDaftar) tutupModal();
+    });
+
+    document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && !modalDaftar.hidden) tutupModal();
+    });
+
+    formDaftar.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const nama = document.getElementById("daftarNama").value.trim();
+        const email = document.getElementById("daftarEmail").value.trim().toLowerCase();
+        const password = document.getElementById("daftarPassword").value;
+        const konfirmasi = document.getElementById("daftarKonfirmasi").value;
+
+        if (nama === "" || email === "" || password === "" || konfirmasi === "") {
+            alert("Semua kolom wajib diisi.");
+            return;
+        }
+
+        if (password.length < 6) {
+            alert("Kata sandi minimal 6 karakter.");
+            document.getElementById("daftarPassword").focus();
+            return;
+        }
+
+        if (password !== konfirmasi) {
+            alert("Konfirmasi kata sandi tidak sama dengan kata sandi.... coba ulangi");
+            document.getElementById("daftarKonfirmasi").value = "";
+            document.getElementById("daftarKonfirmasi").focus();
+            return;
+        }
+
+        const sudahAda = dataPengguna.some(function (u) { return u.email === email; });
+        if (sudahAda) {
+            alert("Maaf, email tersebut sudah terdaftar. Silakan masuk atau gunakan email lain.");
+            document.getElementById("daftarEmail").focus();
+            return;
+        }
+
+        const penggunaBaru = {
+            id: dataPengguna.length + 1,
+            nama: nama,
+            email: email,
+            password: password,
+            role: "Mahasiswa",
+            lokasi: "UT Medan"
+        };
+
+        dataPengguna.push(penggunaBaru);
+
+        try {
+            const tersimpan = JSON.parse(localStorage.getItem("penggunaBaru")) || [];
+            tersimpan.push(penggunaBaru);
+            localStorage.setItem("penggunaBaru", JSON.stringify(tersimpan));
+        } catch (err) {
+            // Jika localStorage tidak tersedia, akun hanya berlaku sampai halaman dimuat ulang
+        }
+
+        alert("Pendaftaran berhasil! Silakan masuk dengan akun " + nama + ".");
+
+        formDaftar.reset();
+        formDaftar.querySelectorAll(".input-box").forEach(function (box) {
+            box.classList.remove("focus");
+        });
+
+        tutupModal();
+
+        const inputEmail = document.getElementById("email");
+        inputEmail.value = email;
+        inputEmail.parentNode.classList.add("focus");
+        document.getElementById("password").focus();
     });
 }
 
@@ -249,6 +361,7 @@ function initTracking() {
 (function () {
     if (document.getElementById('formLogin')) {
         initLogin();
+        initDaftar();
     }
 
     initMenuDropdown();

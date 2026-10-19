@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login - PBA UT Medan</title>
+    <title>Login - SITTA UT Medan</title>
     <!-- Style -->
     <link rel="stylesheet" href="CSS/Style.css" />
     <link
@@ -18,7 +18,7 @@
         <div class="contact-info">
           <h3 class="title">Selamat Datang di Portal Bahan Ajar - UT Medan</h3>
           <p class="desc">
-            Portal Bahan Ajar Universitas Terbuka Medan (PBA UT Medan) menyediakan akses mudah ke modul cetak digital, materi tutorial, dan
+            Portal Bahan Ajar Universitas Terbuka Medan (SITTA UT Medan) menyediakan akses mudah ke modul cetak digital, materi tutorial, dan
             referensi pendukung perkuliahan. Silakan masuk menggunakan email dan
             kata sandi Anda untuk mulai belajar secara fleksibel sesuai
             kebutuhan Anda.
@@ -73,8 +73,41 @@
                     <i class="ri-eye-off-line toggle-password" id="togglePassword"></i>
                 </div>
                 <input type="submit" value="Masuk" class="btn">
+                <p class="switch-text">Belum punya akun? <button type="button" class="link-btn" id="linkDaftar">Daftar</button></p>
             </form>
         </div>
+      </div>
+    </div>
+    <!-- MODAL DAFTAR AKUN (muncul saat tombol "Daftar" diklik) -->
+    <div class="modal" id="modalDaftar" hidden>
+      <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="judulDaftar">
+        <button type="button" class="modal-close" id="tutupDaftar" aria-label="Tutup"><i class="ri-close-line"></i></button>
+        <form action="#" id="formDaftar" autocomplete="off">
+          <h3 class="title" id="judulDaftar">Buat Akun Baru</h3>
+          <div class="input-box">
+            <input type="text" id="daftarNama" class="input">
+            <label for="daftarNama">Nama Lengkap</label>
+            <span>Nama Lengkap</span>
+          </div>
+          <div class="input-box">
+            <input type="email" id="daftarEmail" class="input">
+            <label for="daftarEmail">Email</label>
+            <span>Email</span>
+          </div>
+          <div class="input-box">
+            <input type="password" id="daftarPassword" class="input pw">
+            <label for="daftarPassword">Password (min. 6 karakter)</label>
+            <span>Password (min. 6 karakter)</span>
+            <i class="ri-eye-off-line toggle-password"></i>
+          </div>
+          <div class="input-box">
+            <input type="password" id="daftarKonfirmasi" class="input pw">
+            <label for="daftarKonfirmasi">Konfirmasi Password</label>
+            <span>Konfirmasi Password</span>
+            <i class="ri-eye-off-line toggle-password"></i>
+          </div>
+          <input type="submit" value="Daftar" class="btn">
+        </form>
       </div>
     </div>
     <!-- Script -->
