@@ -1,28 +1,4 @@
-/* =====================================================================
-   GABUNGAN.JS
-   Gabungan dari: script.js, Stok.js, Tracking.js, dan <script> di Dashboard.html
-   Satu file ini dipakai semua halaman. Setiap bagian hanya berjalan jika
-   elemen halamannya ada, jadi aman dimuat di halaman mana pun.
-
-   Daftar bagian:
-     1. LOGIN (index.html)
-        1a. Efek label floating
-        1b. Tampilkan / sembunyikan password
-        1c. Form login
-     2. UMUM: MENU DROPDOWN (Dashboard, Stok, Tracking)
-     3. UMUM: CEK LOGIN
-     4. HALAMAN DASHBOARD
-     5. HALAMAN STOK
-     6. HALAMAN TRACKING
-     7. PEMICU HALAMAN (menjalankan bagian sesuai halaman)
-   ===================================================================== */
-
-
-/* =====================================================================
-   1. LOGIN (index.html) - dari script.js
-   ===================================================================== */
 function initLogin() {
-    // ----- 1a. Efek label floating -----
     const inputs = document.querySelectorAll(".input");
 
     function addFocusClass() {
@@ -43,7 +19,6 @@ function initLogin() {
         input.addEventListener("blur", blurFunc);
     });
 
-    // ----- 1b. Tampilkan / sembunyikan password -----
     document.querySelectorAll(".toggle-password").forEach((icon) => {
         icon.addEventListener("click", () => {
             const input = icon.parentNode.querySelector(".input");
@@ -55,7 +30,6 @@ function initLogin() {
         });
     });
 
-    // ----- 1c. Form login -----
     document.getElementById("formLogin").addEventListener("submit", function (e) {
         e.preventDefault();
 
@@ -78,10 +52,6 @@ function initLogin() {
     });
 }
 
-
-/* =====================================================================
-   2. UMUM: MENU DROPDOWN (Dashboard, Stok, Tracking)
-   ===================================================================== */
 function initMenuDropdown() {
     const toggleBtn = document.querySelector('.toggle_btn');
     const toggleBtnIcon = document.querySelector('.toggle_btn i');
@@ -99,7 +69,6 @@ function initMenuDropdown() {
 
     toggleBtn.addEventListener('click', toggleMenu);
 
-    // Bisa dibuka lewat keyboard (Enter / Spasi)
     toggleBtn.addEventListener('keydown', function (e) {
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
@@ -107,7 +76,6 @@ function initMenuDropdown() {
         }
     });
 
-    // Tutup menu saat salah satu link diklik
     dropDownMenu.querySelectorAll('a').forEach(function (link) {
         link.addEventListener('click', function () {
             dropDownMenu.classList.remove('open');
@@ -117,11 +85,6 @@ function initMenuDropdown() {
     });
 }
 
-
-/* =====================================================================
-   3. UMUM: CEK LOGIN
-   Mengembalikan data user yang login, atau null (lalu diarahkan ke login)
-   ===================================================================== */
 function cekLogin() {
     const user = JSON.parse(sessionStorage.getItem('userLogin'));
     if (!user) {
@@ -131,15 +94,9 @@ function cekLogin() {
     return user;
 }
 
-
-/* =====================================================================
-   4. HALAMAN DASHBOARD - dari <script> di Dashboard.html
-   ===================================================================== */
 function initDashboard(user) {
-    // Tampilkan nama user yang login
     document.getElementById("namaUser").textContent = user.nama;
 
-    // Pencarian bahan ajar dari data.js
     const inputCari = document.getElementById("inputCari");
     const hasilCari = document.getElementById("hasilCari");
 
@@ -175,12 +132,7 @@ function initDashboard(user) {
     inputCari.addEventListener("input", cariBahanAjar);
 }
 
-
-/* =====================================================================
-   5. HALAMAN STOK - dari Stok.js
-   ===================================================================== */
 function initStok() {
-    // ----- Tampilkan daftar BMP dari data.js -----
     const daftarBMP = document.getElementById('daftarBMP');
     const inputCari = document.getElementById('inputCari');
 
@@ -204,7 +156,6 @@ function initStok() {
         }).join('');
     }
 
-    // ----- Pencarian -----
     function cariBahanAjar() {
         const kata = inputCari.value.trim().toLowerCase();
 
@@ -219,23 +170,16 @@ function initStok() {
     document.getElementById('btnCari').addEventListener('click', cariBahanAjar);
     inputCari.addEventListener('input', cariBahanAjar);
 
-    // Tampilkan semua BMP saat halaman dibuka
     tampilkan(dataBahanAjar);
 }
 
-
-/* =====================================================================
-   6. HALAMAN TRACKING - dari Tracking.js
-   ===================================================================== */
 function initTracking() {
-    // ----- Pencarian kode tracking dari data.js (dataTracking) -----
     const inputTracking = document.getElementById('inputTracking');
     const hasilTracking = document.getElementById('hasilTracking');
     const mainTracking = document.getElementById('mainTracking');
 
     const bulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
-    // "2025-08-25 10:12:20" -> "25 Agu 2025, 10:12:20"
     function formatWaktu(teks) {
         const bagian = teks.split(' ');
         const tgl = bagian[0].split('-');
@@ -262,14 +206,11 @@ function initTracking() {
             return;
         }
 
-        // Ada hasil: kolom pencarian naik ke atas, hasil tampil di bawahnya
         mainTracking.classList.remove('awal');
 
-        // Cari isi paket (kode lokasi) di data bahan ajar
         const bmp = dataBahanAjar.find(function (b) { return b.kodeLokasi === data.paket; });
         const isiPaket = bmp ? bmp.namaBarang + ' (' + bmp.kodeBarang + ')' : data.paket;
 
-        // Posisi terbaru ditampilkan paling atas
         const perjalanan = data.perjalanan.slice().reverse();
 
         const timeline = perjalanan.map(function (p, i) {
@@ -305,21 +246,13 @@ function initTracking() {
     });
 }
 
-
-/* =====================================================================
-   7. PEMICU HALAMAN
-   Menjalankan bagian yang sesuai dengan elemen yang ada di halaman
-   ===================================================================== */
 (function () {
-    // Halaman login (index.html)
     if (document.getElementById('formLogin')) {
         initLogin();
     }
 
-    // Menu dropdown (Dashboard, Stok, Tracking)
     initMenuDropdown();
 
-    // Halaman yang wajib login
     const adaDashboard = document.getElementById('namaUser');
     const adaStok = document.getElementById('daftarBMP');
     const adaTracking = document.getElementById('hasilTracking');

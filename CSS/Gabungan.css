@@ -1,22 +1,3 @@
-/* =====================================================================
-   GABUNGAN.CSS
-   Gabungan dari: styledashboard.css, Stokstyle.css, dan <style> Tracking.html
-   Daftar bagian:
-     1. UMUM (font, variabel, reset, body)
-     2. NAVBAR & HEADER
-     3. TOMBOL
-     4. DROPDOWN MENU
-     5. RESPONSIVE NAVBAR
-     6. HALAMAN DASHBOARD (hero, search, hasil, footer)
-     7. HALAMAN STOK
-     8. HALAMAN TRACKING
-     9. MENU AKTIF (Stok & Tracking)
-   ===================================================================== */
-
-
-/* =====================================================================
-   1. UMUM (dari styledashboard.css)
-   ===================================================================== */
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
 
 :root {
@@ -26,8 +7,8 @@
     --text-light: #737373;
     --extra-light: #f4f6f6;
     --max-width: 1200px;
-    --header-top: 0.5rem; /* jarak navbar dari tepi atas layar */
-    --kolom: 3;           /* (Stok) jumlah BMP per baris. Ubah angka ini kalau ingin 2, 4, dst. */
+    --header-top: 0.5rem;
+    --kolom: 3;
 }
 
 * {
@@ -40,7 +21,7 @@
 body {
     height: 100vh;
     height: 100dvh;
-    overflow: hidden;   /* halaman utama tidak bisa di-scroll */
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     background-color: var(--yellow-sun);
@@ -65,13 +46,9 @@ a:hover {
     color: var(--yellow-sun);
 }
 
-
-/* =====================================================================
-   2. NAVBAR & HEADER (dari styledashboard.css)
-   ===================================================================== */
 header {
     position: relative;
-    padding: var(--header-top) 2rem 0;   /* atas | kanan-kiri | bawah */
+    padding: var(--header-top) 2rem 0;
 }
 
 .navbar {
@@ -97,12 +74,12 @@ header {
 
 .navbar .links {
     display: flex;
-    gap: 1rem;                  /* jarak antar menu */
+    gap: 1rem;
     align-items: center;
-    height: 48px;               /* tinggi menu = tinggi Get Started */
-    padding: 0.35rem 0.75rem;   /* atas-bawah | kanan-kiri */
+    height: 48px;
+    padding: 0.35rem 0.75rem;
     box-sizing: border-box;
-    /* Glass hanya di ul */
+
     background-color: rgba(255, 255, 255, 0.12);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -117,11 +94,11 @@ header {
 
 .navbar .links li:hover {
     background-color: rgba(255, 255, 255, 0.18);
-    transform: scale(1.08);   /* membesar saat disorot */
+    transform: scale(1.08);
 }
 
 .navbar .links li:active {
-    transform: scale(0.94);   /* mengecil saat ditekan */
+    transform: scale(0.94);
     background-color: rgba(255, 255, 255, 0.28);
 }
 
@@ -137,7 +114,6 @@ header {
     display: none;
 }
 
-/* Ikon hamburger berputar saat berganti */
 .navbar .toggle_btn i {
     display: inline-block;
     transition: transform 0.3s ease;
@@ -147,10 +123,6 @@ header {
     transform: rotate(180deg);
 }
 
-
-/* =====================================================================
-   3. TOMBOL (dari styledashboard.css)
-   ===================================================================== */
 .action-btn {
     background-color: var(--blue-dark);
     color: var(--extra-light);
@@ -164,7 +136,6 @@ header {
     transition: scale 0.2s ease;
 }
 
-/* Get Started di navbar: ukuran disamakan dengan menu */
 .navbar .action-btn {
     display: inline-flex;
     align-items: center;
@@ -184,14 +155,10 @@ header {
     scale: 0.95;
 }
 
-
-/* =====================================================================
-   4. DROPDOWN MENU (dari styledashboard.css)
-   ===================================================================== */
 .dropdown-menu {
     position: absolute;
     right: 2rem;
-    top: calc(var(--header-top) + 60px);   /* mengikuti jarak atas navbar */
+    top: calc(var(--header-top) + 60px);
     width: 300px;
     background-color: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(15px);
@@ -200,7 +167,6 @@ header {
     overflow: hidden;
     z-index: 10;
 
-    /* Keadaan tertutup (disembunyikan, bukan display: none, agar bisa dianimasikan) */
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -209,7 +175,7 @@ header {
     transition:
         opacity 0.25s ease,
         transform 0.25s ease,
-        visibility 0s linear 0.25s; /* visibility baru berubah setelah animasi tutup selesai */
+        visibility 0s linear 0.25s;
 }
 
 .dropdown-menu.open {
@@ -223,7 +189,6 @@ header {
         visibility 0s;
 }
 
-/* Item muncul berurutan saat menu dibuka */
 .dropdown-menu li {
     opacity: 0;
     transform: translateY(-6px);
@@ -241,7 +206,6 @@ header {
 .dropdown-menu.open li:nth-child(4) { transition-delay: 0.20s; }
 .dropdown-menu.open li:nth-child(5) { transition-delay: 0.25s; }
 
-/* Hover & tekan pada item dropdown */
 .dropdown-menu.open li:hover {
     transform: scale(1.04);
     transition-delay: 0s;
@@ -252,7 +216,6 @@ header {
     transition-delay: 0s;
 }
 
-/* Hormati pengguna yang menonaktifkan animasi */
 @media (prefers-reduced-motion: reduce) {
     .dropdown-menu,
     .dropdown-menu li,
@@ -262,7 +225,6 @@ header {
     }
 }
 
-/* Jarak antar kolom di dalam dropdown */
 .dropdown-menu ul {
     display: flex;
     flex-direction: column;
@@ -270,7 +232,6 @@ header {
     padding: 0.75rem;
 }
 
-/* Setiap li menjadi kolom glass */
 .dropdown-menu li {
     padding: 0.7rem;
     display: flex;
@@ -285,7 +246,6 @@ header {
     background-color: rgba(255, 255, 255, 0.22);
 }
 
-/* Kolom terakhir (Get Started) tidak perlu glass, tombolnya sudah punya warna sendiri */
 .dropdown-menu li:last-child {
     padding: 0;
     background: none;
@@ -303,10 +263,6 @@ header {
     justify-content: center;
 }
 
-
-/* =====================================================================
-   5. RESPONSIVE NAVBAR (dari styledashboard.css)
-   ===================================================================== */
 @media (max-width: 992px) {
     .navbar .links,
     .navbar .action-btn {
@@ -331,12 +287,6 @@ header {
     }
 }
 
-
-/* =====================================================================
-   6. HALAMAN DASHBOARD (dari styledashboard.css)
-   ===================================================================== */
-
-/* ----- Konten utama (hero) ----- */
 .hero {
     flex: 1;
     min-height: 0;
@@ -347,7 +297,7 @@ header {
     color: #fff;
     display: flex;
     flex-direction: row;
-    align-items: center;      /* tengah vertikal */
+    align-items: center;
     justify-content: space-between;
     gap: 2rem;
     text-align: left;
@@ -361,14 +311,14 @@ header {
 .hero-kanan {
     flex: 1;
     max-width: 480px;
-    max-height: calc(100vh - 230px);   /* selalu muat di layar, daftar di-scroll di dalamnya */
+    max-height: calc(100vh - 230px);
     overflow-y: auto;
-    scrollbar-width: none;      /* Firefox */
-    -ms-overflow-style: none;   /* Edge lama */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
 .hero-kanan::-webkit-scrollbar {
-    display: none;              /* Chrome, Edge, Safari */
+    display: none;
 }
 
 .hero h1 {
@@ -387,7 +337,6 @@ header {
     margin-bottom: 2rem;
 }
 
-/* ----- Kolom search (dipakai juga di Stok & Tracking) ----- */
 .search-box {
     display: flex;
     gap: 0.5rem;
@@ -435,7 +384,6 @@ header {
     scale: 0.95;
 }
 
-/* ----- Hasil pencarian ----- */
 .hasil {
     width: 100%;
     text-align: left;
@@ -468,7 +416,6 @@ header {
     line-height: 1.5;
 }
 
-/* ----- Footer (dipakai semua halaman) ----- */
 .footer {
     display: flex;
     justify-content: space-between;
@@ -480,7 +427,6 @@ header {
     background-color: rgba(0, 0, 0, 0.35);
 }
 
-/* ----- Foto cover buku ----- */
 .hasil .item img {
     width: 80px;
     height: 110px;
@@ -496,7 +442,6 @@ header {
     flex: 1;
 }
 
-/* ----- Layar kecil: hasil tetap di kanan, ukuran dikecilkan ----- */
 @media (max-width: 800px) {
     .hero {
         padding: 2rem 1rem;
@@ -521,12 +466,6 @@ header {
     }
 }
 
-
-/* =====================================================================
-   7. HALAMAN STOK (dari Stokstyle.css)
-   ===================================================================== */
-
-/* ----- Konten utama ----- */
 .stok {
     flex: 1;
     min-height: 0;
@@ -536,7 +475,7 @@ header {
     padding: 1.5rem 2rem;
     display: flex;
     flex-direction: column;
-    align-items: center;   /* search di tengah */
+    align-items: center;
     gap: 1.5rem;
     color: #fff;
 }
@@ -546,7 +485,6 @@ header {
     max-width: 600px;
 }
 
-/* ----- Daftar BMP: grid, di-scroll di dalamnya (scrollbar disembunyikan) ----- */
 .grid-bmp {
     width: 100%;
     flex: 1;
@@ -556,7 +494,7 @@ header {
     -ms-overflow-style: none;
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;   /* baris terakhir otomatis di tengah */
+    justify-content: center;
     align-content: flex-start;
     gap: 1.2rem;
     padding: 0.5rem;
@@ -566,11 +504,10 @@ header {
     display: none;
 }
 
-/* ----- Kartu BMP (glass UI) ----- */
 .kartu {
     flex: 0 0 calc((100% - (var(--kolom) - 1) * 1.2rem) / var(--kolom));
     display: flex;
-    align-items: center;   /* foto di kiri, keterangan di kanan (seperti hasil search Dashboard) */
+    align-items: center;
     gap: 1rem;
     padding: 1rem 1.2rem;
     background-color: rgba(255, 255, 255, 0.12);
@@ -607,7 +544,6 @@ header {
     color: var(--extra-light);
 }
 
-/* ----- Kotak stok ----- */
 .kartu .stok-info {
     display: block;
     margin-top: 0.7rem;
@@ -627,7 +563,6 @@ header {
     padding: 2rem 0;
 }
 
-/* ----- Responsive Stok ----- */
 @media (max-width: 900px) {
     :root { --kolom: 2; }
 }
@@ -640,12 +575,6 @@ header {
     }
 }
 
-
-/* =====================================================================
-   8. HALAMAN TRACKING (dari <style> di Tracking.html)
-   ===================================================================== */
-
-/* ----- Konten utama ----- */
 .tracking {
     flex: 1;
     min-height: 0;
@@ -655,7 +584,7 @@ header {
     padding: 1.5rem 2rem;
     display: flex;
     flex-direction: column;
-    align-items: center;   /* kolom pencarian di tengah */
+    align-items: center;
     gap: 1.5rem;
     color: #fff;
 }
@@ -665,7 +594,6 @@ header {
     max-width: 600px;
 }
 
-/* ----- Area hasil: di-scroll di dalamnya (scrollbar disembunyikan) ----- */
 .hasil-tracking {
     width: 100%;
     max-width: 960px;
@@ -687,7 +615,6 @@ header {
     display: none;
 }
 
-/* ----- Keadaan awal / belum ada hasil: kolom pencarian tepat di tengah halaman ----- */
 .tracking.awal {
     justify-content: center;
     padding-bottom: 4rem;
@@ -698,7 +625,6 @@ header {
     overflow: visible;
 }
 
-/* ----- Pesan petunjuk / tidak ditemukan (kartu kaca di tengah, tepat di bawah kolom pencarian) ----- */
 .petunjuk,
 .tidak-ditemukan {
     grid-column: 1 / -1;
@@ -721,7 +647,6 @@ header {
     color: var(--yellow-sun);
 }
 
-/* ----- Kartu glass ----- */
 .kartu-tracking {
     padding: 1.2rem 1.4rem;
     background-color: rgba(255, 255, 255, 0.12);
@@ -736,7 +661,6 @@ header {
     margin-bottom: 0.8rem;
 }
 
-/* ----- Ringkasan pengiriman ----- */
 .baris-info {
     display: flex;
     justify-content: space-between;
@@ -767,7 +691,6 @@ header {
     font-size: 0.85rem;
 }
 
-/* ----- Timeline perjalanan ----- */
 .timeline {
     position: relative;
     padding-left: 1.7rem;
@@ -804,7 +727,6 @@ header {
     background-color: rgba(255, 255, 255, 0.55);
 }
 
-/* Posisi terbaru (paling atas) disorot */
 .timeline li.terbaru::before {
     background-color: var(--yellow-sun);
     box-shadow: 0 0 0 4px rgba(255, 192, 0, 0.3);
@@ -826,7 +748,6 @@ header {
     font-weight: bold;
 }
 
-/* ----- Responsive Tracking ----- */
 @media (max-width: 800px) {
     .hasil-tracking {
         grid-template-columns: 1fr;
@@ -837,11 +758,6 @@ header {
     }
 }
 
-
-/* =====================================================================
-   9. MENU AKTIF (dipakai Stok & Tracking)
-   Menu halaman yang sedang dibuka tampil seperti sedang ditekan
-   ===================================================================== */
 .navbar .links li.active {
     background-color: rgba(255, 255, 255, 0.28);
     transform: scale(0.94);
