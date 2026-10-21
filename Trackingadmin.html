@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRACKING SITTA | PBA UT Medan</title>
+
+    <!-- Style (semua gaya ada di Gabungan.css) -->
+    <link rel="stylesheet" href="CSS/Gabungan.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="navbar">
+            <div class="logo"><a href="Dashboard.html">PBA <span>UT Medan</span></a></div>
+
+            <!-- Menu "Stok SITTA" & "Tracking SITTA" ditambahkan otomatis oleh Gabungan.js (khusus admin) -->
+            <ul class="links">
+                <li><a href="Stok.html">Stok</a></li>
+                <li><a href="Tracking.html">Tracking</a></li>
+                <li><a href="#ContactUs">Contact Us</a></li>
+            </ul>
+
+            <a href="https://myut.ut.ac.id/auth/login" class="action-btn">MyUT</a>
+
+            <div class="toggle_btn" aria-label="Buka menu" role="button" tabindex="0">
+                <i class="ri-menu-line"></i>
+            </div>
+        </div>
+
+        <!-- Dropdown menu -->
+        <div class="dropdown-menu">
+            <ul>
+                <li><a href="Stok.html">Stok</a></li>
+                <li><a href="Tracking.html">Tracking</a></li>
+                <li><a href="#ContactUs">Contact Us</a></li>
+                <li><a href="https://myut.ut.ac.id/auth/login" class="action-btn">MyUT</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- Aplikasi Vue (#trackingApp). display: contents -> main & modal tetap anak langsung body -->
+    <div id="trackingApp" class="app-root" v-cloak>
+        <main class="tracking" :class="{ awal: !detail }">
+            <div class="search-box lebar">
+                <input type="text" v-model="kodeCari" @keyup.enter="lacak" placeholder="Masukkan nomor DO, mis. DO2025-001">
+                <button @click="lacak"><i class="ri-search-line"></i> Lacak</button>
+                <button class="tombol-garis" @click="bukaModal"><i class="ri-add-line"></i> DO Baru</button>
+            </div>
+
+            <div class="hasil-tracking">
+                <!-- Ada hasil -->
+                <template v-if="detail">
+                    <div class="kartu-tracking">
+                        <h3>Detail Pengiriman</h3>
+                        <span class="badge-status">{{ detail.status }}</span>
+                        <div class="baris-info"><span>Nomor DO</span><strong>{{ kodeHasil }}</strong></div>
+                        <div class="baris-info"><span>NIM</span><strong>{{ detail.nim }}</strong></div>
+                        <div class="baris-info"><span>Nama</span><strong>{{ detail.nama }}</strong></div>
+                        <div class="baris-info"><span>Ekspedisi</span><strong>{{ detail.ekspedisi }}</strong></div>
+                        <div class="baris-info"><span>Tanggal Kirim</span><strong>{{ formatWaktu(detail.tanggalKirim) }}</strong></div>
+                        <div class="baris-info">
+                            <span>Paket</span>
+                            <strong>{{ paketDetail ? paketDetail.kode + ' - ' + paketDetail.nama : detail.paket }}</strong>
+                        </div>
+                        <ul class="isi-paket" v-if="paketDetail">
+                            <li v-for="(b, i) in paketDetail.isi" :key="i">{{ b }}</li>
+                        </ul>
+                        <div class="baris-info"><span>Total</span><strong>{{ rupiah(detail.total) }}</strong></div>
+                    </div>
+
+                    <div class="kartu-tracking">
+                        <h3>Posisi Pengiriman</h3>
+                        <ul class="timeline">
+                            <li v-for="(p, i) in perjalananTerbaru" :key="p.waktu + '-' + i" :class="{ terbaru: i === 0 }">
+                                <div class="waktu">{{ formatWaktu(p.waktu) }}</div>
+                                <div class="keterangan">{{ p.keterangan }}</div>
+                            </li>
+                        </ul>
+                    </div>
+                </template>
+
+                <!-- Sudah mencari tapi tidak ada -->
+                <p class="tidak-ditemukan" v-else-if="sudahCari">
+                    Nomor DO "{{ kodeCari.trim() }}" tidak ditemukan. Periksa kembali nomor Anda.
+                </p>
+
+                <!-- Keadaan awal -->
+                <div class="petunjuk" v-else>
+                    <p>Masukkan nomor DO lalu tekan Lacak, atau pilih salah satu DO di bawah. Gunakan <strong>DO Baru</strong> untuk membuat Delivery Order.</p>
+                    <div class="chip-wadah">
+                        <button class="chip-do" v-for="n in daftarNomorDO" :key="n" @click="lacakDari(n)">{{ n }}</button>
+                    </div>
+                    <button class="tombol tombol-garis tombol-kecil pulih" @click="pulihkanData"><i class="ri-restart-line"></i> Kembalikan data awal</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Modal DO baru -->
+        <div class="modal-latar" v-if="modalTampil" @click.self="tutupModal">
+            <div class="modal-kotak" role="dialog" aria-modal="true">
+                <div class="modal-kepala">
+                    <h2>Delivery Order Baru</h2>
+                    <button class="tutup" @click="tutupModal" aria-label="Tutup"><i class="ri-close-line"></i></button>
+                </div>
+
+                <form @submit.prevent="simpanDO" novalidate>
+                    <div class="form-grid">
+                        <div class="fld">
+                            <label for="dNomor">Nomor DO (otomatis)</label>
+                            <input id="dNomor" class="kontrol" type="text" :value="nomorDOBerikutnya" readonly>
+                        </div>
+
+                        <div class="fld" :class="{ salah: errors.tanggalKirim }">
+                            <label for="dTanggal">Tanggal Kirim</label>
+                            <div class="baris-tanggal">
+                                <input id="dTanggal" class="kontrol" type="date" v-model="formDO.tanggalKirim">
+                                <button type="button" class="tombol tombol-garis tombol-kecil" @click="isiHariIni">Hari ini</button>
+                            </div>
+                            <p class="pesan-salah" v-if="errors.tanggalKirim">{{ errors.tanggalKirim }}</p>
+                        </div>
+
+                        <div class="fld" :class="{ salah: errors.nim }">
+                            <label for="dNim">NIM</label>
+                            <input id="dNim" class="kontrol" type="text" inputmode="numeric" maxlength="12" v-model="formDO.nim" placeholder="031234567">
+                            <p class="pesan-salah" v-if="errors.nim">{{ errors.nim }}</p>
+                        </div>
+
+                        <div class="fld" :class="{ salah: errors.nama }">
+                            <label for="dNama">Nama</label>
+                            <input id="dNama" class="kontrol" type="text" v-model="formDO.nama" placeholder="Nama mahasiswa">
+                            <p class="pesan-salah" v-if="errors.nama">{{ errors.nama }}</p>
+                        </div>
+
+                        <div class="fld" :class="{ salah: errors.ekspedisi }">
+                            <label for="dEkspedisi">Ekspedisi</label>
+                            <select id="dEkspedisi" class="kontrol" v-model="formDO.ekspedisi">
+                                <option v-for="e in ekspedisiList" :key="e.kode" :value="e.kode">{{ e.nama }}</option>
+                            </select>
+                            <p class="pesan-salah" v-if="errors.ekspedisi">{{ errors.ekspedisi }}</p>
+                        </div>
+
+                        <div class="fld" :class="{ salah: errors.paketKode }">
+                            <label for="dPaket">Paket Bahan Ajar</label>
+                            <select id="dPaket" class="kontrol" v-model="formDO.paketKode">
+                                <option value="" disabled>-- Pilih paket --</option>
+                                <option v-for="p in paketList" :key="p.kode" :value="p.kode">{{ p.kode }} - {{ p.nama }}</option>
+                            </select>
+                            <p class="pesan-salah" v-if="errors.paketKode">{{ errors.paketKode }}</p>
+                        </div>
+
+                        <!-- Detail isi paket muncul di bawah select setelah paket dipilih -->
+                        <div class="fld penuh" v-if="paketTerpilih">
+                            <div class="paket-info">
+                                <strong>{{ paketTerpilih.kode }} - {{ paketTerpilih.nama }}</strong>
+                                <ul>
+                                    <li v-for="(b, i) in paketTerpilih.isi" :key="i">{{ b }}</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="fld penuh">
+                            <label for="dTotal">Total Harga (dari paket)</label>
+                            <input id="dTotal" class="kontrol" type="text" :value="rupiah(totalHarga)" readonly>
+                        </div>
+                    </div>
+
+                    <div class="modal-aksi">
+                        <button type="button" class="tombol tombol-garis" @click="tutupModal">Batal</button>
+                        <button type="submit" class="tombol tombol-utama"><i class="ri-save-line"></i> Simpan DO</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="toast" v-if="pesan"><i class="ri-checkbox-circle-fill"></i> {{ pesan }}</div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <span>(Tugas 2 STSI4209 Pemrograman Berbasis Web - Vue.js)</span>
+        <div class="ri-copyright-line">
+            <span>Copyright 2026</span>
+        </div>
+    </footer>
+
+    <!-- Script: Vue -> data -> logika (Gabungan.js, BAGIAN 4) -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.min.js"></script>
+    <script src="Javascript/dataBahanAjar.js"></script>
+    <script src="Javascript/Gabungan.js"></script>
+</body>
+</html>

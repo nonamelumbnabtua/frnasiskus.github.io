@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STOK SITTA | PBA UT Medan</title>
+
+    <!-- Style (semua gaya ada di Gabungan.css) -->
+    <link rel="stylesheet" href="CSS/Gabungan.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="navbar">
+            <div class="logo"><a href="Dashboard.html">PBA <span>UT Medan</span></a></div>
+
+            <!-- Menu "Stok SITTA" & "Tracking SITTA" ditambahkan otomatis oleh Gabungan.js (khusus admin) -->
+            <ul class="links">
+                <li><a href="Stok.html">Stok</a></li>
+                <li><a href="Tracking.html">Tracking</a></li>
+                <li><a href="#ContactUs">Contact Us</a></li>
+            </ul>
+
+            <a href="https://myut.ut.ac.id/auth/login" class="action-btn">MyUT</a>
+
+            <div class="toggle_btn" aria-label="Buka menu" role="button" tabindex="0">
+                <i class="ri-menu-line"></i>
+            </div>
+        </div>
+
+        <!-- Dropdown menu -->
+        <div class="dropdown-menu">
+            <ul>
+                <li><a href="Stok.html">Stok</a></li>
+                <li><a href="Tracking.html">Tracking</a></li>
+                <li><a href="#ContactUs">Contact Us</a></li>
+                <li><a href="https://myut.ut.ac.id/auth/login" class="action-btn">MyUT</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- Aplikasi Vue (#stokApp). display: contents -> main & modal tetap anak langsung body -->
+    <div id="stokApp" class="app-root" v-cloak>
+        <main class="admin">
+            <div class="admin-kepala">
+                <div>
+                    <h1>Stok Bahan Ajar <span>SITTA</span></h1>
+                    <p>Kelola stok bahan ajar seluruh UT-Daerah
+                        <span v-show="terakhirDiubah" class="terakhir">· diubah {{ terakhirDiubah }}</span>
+                    </p>
+                </div>
+                <div class="aksi-kepala">
+                    <button class="tombol tombol-garis" @click="pulihkanData"><i class="ri-restart-line"></i> Data Awal</button>
+                    <button class="tombol tombol-utama" @click="bukaTambah"><i class="ri-add-line"></i> Tambah Bahan Ajar</button>
+                </div>
+            </div>
+
+            <!-- Ringkasan sesuai filter -->
+            <div class="ringkas">
+                <span class="chip">Ditampilkan <strong>{{ ringkasan.total }}</strong></span>
+                <span class="chip aman"><i class="ri-checkbox-circle-fill"></i> Aman <strong>{{ ringkasan.aman }}</strong></span>
+                <span class="chip menipis"><i class="ri-error-warning-fill"></i> Menipis <strong>{{ ringkasan.menipis }}</strong></span>
+                <span class="chip kosong"><i class="ri-close-circle-fill"></i> Kosong <strong>{{ ringkasan.kosong }}</strong></span>
+            </div>
+
+            <!-- Filter & sort -->
+            <div class="filter-bar">
+                <label class="fld-inline">
+                    <span>UT-Daerah</span>
+                    <select class="kontrol" v-model="selectedUpbjj">
+                        <option value="">Semua UT-Daerah</option>
+                        <option v-for="u in upbjjList" :key="u" :value="u">{{ u }}</option>
+                    </select>
+                </label>
+
+                <!-- Dependent options: muncul setelah UT-Daerah dipilih -->
+                <label class="fld-inline" v-if="selectedUpbjj">
+                    <span>Kategori</span>
+                    <select class="kontrol" v-model="selectedKategori">
+                        <option value="">Semua kategori</option>
+                        <option v-for="k in kategoriTersedia" :key="k" :value="k">{{ k }}</option>
+                    </select>
+                </label>
+                <span class="hint-filter" v-else><i class="ri-information-line"></i> Pilih UT-Daerah untuk memfilter kategori</span>
+
+                <label class="cek">
+                    <input type="checkbox" v-model="filterReorder">
+                    <span>Perlu re-order (stok &lt; safety / kosong)</span>
+                </label>
+
+                <label class="fld-inline">
+                    <span>Urutkan</span>
+                    <select class="kontrol" v-model="sortBy">
+                        <option value="">Bawaan</option>
+                        <option value="judul">Judul</option>
+                        <option value="qty">Stok</option>
+                        <option value="harga">Harga</option>
+                    </select>
+                </label>
+                <button class="tombol tombol-garis tombol-kecil" v-show="sortBy" @click="toggleArah">
+                    {{ sortDir === 'asc' ? '↑ Naik' : '↓ Turun' }}
+                </button>
+
+                <button class="tombol tombol-garis tombol-kecil" @click="resetFilter" :disabled="!adaFilterAktif">
+                    <i class="ri-refresh-line"></i> Reset
+                </button>
+            </div>
+
+            <div class="banner-reorder" v-show="jumlahReorder > 0">
+                <i class="ri-alarm-warning-line"></i>
+                <span>{{ jumlahReorder }} bahan ajar perlu di-<em>re-order</em> (stok di bawah safety atau kosong).</span>
+            </div>
+
+            <!-- Tabel stok -->
+            <div class="tabel-wrap">
+                <table class="tabel">
+                    <thead>
+                        <tr>
+                            <th>Kode / Judul</th>
+                            <th>Kategori</th>
+                            <th>UT-Daerah</th>
+                            <th>Lokasi Rak</th>
+                            <th class="angka">Harga</th>
+                            <th class="angka">Stok</th>
+                            <th class="angka">Safety</th>
+                            <th>Status</th>
+                            <th>Peringatan</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="item in stokTerfilter" :key="item.upbjj + '-' + item.kode" :class="'baris-' + statusStok(item)">
+                            <td>
+                                <strong v-text="item.kode"></strong><br>
+                                <span>{{ item.judul }}</span>
+                            </td>
+                            <td v-text="item.kategori"></td>
+                            <td v-text="item.upbjj"></td>
+                            <td v-text="item.lokasiRak"></td>
+                            <td class="angka">{{ rupiah(item.harga) }}</td>
+                            <td class="angka"><strong v-text="item.qty"></strong></td>
+                            <td class="angka" v-text="item.safety"></td>
+                            <td>
+                                <span v-if="statusStok(item) === 'aman'" class="status aman"><i class="ri-checkbox-circle-fill"></i> Aman</span>
+                                <span v-else-if="statusStok(item) === 'menipis'" class="status menipis"><i class="ri-error-warning-fill"></i> Menipis</span>
+                                <span v-else class="status kosong"><i class="ri-close-circle-fill"></i> Kosong</span>
+                            </td>
+                            <td class="kolom-peringatan">
+                                <span class="status" :class="kunciPeringatan(item)">
+                                    <i :class="infoPeringatan[kunciPeringatan(item)].ikon"></i> {{ infoPeringatan[kunciPeringatan(item)].label }}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="tombol tombol-garis tombol-kecil" @click="bukaEdit(item)"><i class="ri-edit-line"></i> Edit</button>
+                            </td>
+                        </tr>
+                        <tr v-if="stokTerfilter.length === 0">
+                            <td colspan="10" class="data-kosong">Tidak ada bahan ajar yang sesuai dengan filter.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+
+        <!-- Modal tambah / edit -->
+        <div class="modal-latar" v-if="modalTampil" @click.self="tutupModal">
+            <div class="modal-kotak" role="dialog" aria-modal="true">
+                <div class="modal-kepala">
+                    <h2>{{ modalMode === 'tambah' ? 'Tambah Bahan Ajar' : 'Edit Bahan Ajar' }}</h2>
+                    <button class="tutup" @click="tutupModal" aria-label="Tutup"><i class="ri-close-line"></i></button>
+                </div>
+
+                <form @submit.prevent="simpan" novalidate>
+                    <div class="form-grid">
+                        <div class="fld" :class="{ salah: errors.kode }">
+                            <label for="fKode">Kode Mata Kuliah</label>
+                            <input id="fKode" class="kontrol" type="text" v-model="form.kode" :disabled="modalMode === 'edit'" placeholder="EKMA4116">
+                            <p class="pesan-salah" v-if="errors.kode">{{ errors.kode }}</p>
+                        </div>
+
+                        <div class="fld" :class="{ salah: errors.judul }">
+                            <label for="fJudul">Judul / Nama Mata Kuliah</label>
+                            <input id="fJudul" class="kontrol" type="text" v-model="form.judul" placeholder="Pengantar Manajemen">
+                            <p class="pesan-salah" v-if="errors.judul">{{ errors.judul }}</p>
+                        </div>
+
+                        <div class="fld" :class="{ salah: errors.upbjj }">
+                            <label for="fUpbjj">UT-Daerah</label>
+                            <select id="fUpbjj" class="kontrol" v-model="form.upbjj" :disabled="modalMode === 'edit'">
+                                <option value="" disabled>-- Pilih UT-Daerah --</option>
+                                <option v-for="u in upbjjList" :key="u" :value="u">{{ u }}</option>
+                            </select>
+                            <p class="pesan-salah" v-if="errors.upbjj">{{ errors.upbjj }}</p>
+                        </div>
+
+                        <div class="fld" :class="{ salah: errors.kategori }">
+                            <label for="fKategori">Kategori Mata Kuliah</label>
+                            <select id="fKategori" class="kontrol" v-model="form.kategori">
+                                <option value="" disabled>-- Pilih kategori --</option>
+                                <option v-for="k in kategoriList" :key="k" :value="k">{{ k }}</option>
+                            </select>
+                            <p class="pesan-salah" v-if="errors.kategori">{{ errors.kategori }}</p>
+                        </div>
+
+                        <div class="fld" :class="{ salah: errors.lokasiRak }">
+                            <label for="fRak">Lokasi Rak</label>
+                            <input id="fRak" class="kontrol" type="text" v-model="form.lokasiRak" placeholder="0TMP01">
+                            <p class="pesan-salah" v-if="errors.lokasiRak">{{ errors.lokasiRak }}</p>
+                        </div>
+
+                        <div class="fld" :class="{ salah: errors.harga }">
+                            <label for="fHarga">Harga (Rp)</label>
+                            <input id="fHarga" class="kontrol" type="number" min="0" v-model.number="form.harga" placeholder="85000">
+                            <p class="pesan-salah" v-if="errors.harga">{{ errors.harga }}</p>
+                        </div>
+
+                        <div class="fld" :class="{ salah: errors.qty }">
+                            <label for="fQty">Jumlah Stok</label>
+                            <input id="fQty" class="kontrol" type="number" min="0" v-model.number="form.qty">
+                            <p class="pesan-salah" v-if="errors.qty">{{ errors.qty }}</p>
+                        </div>
+
+                        <div class="fld" :class="{ salah: errors.safety }">
+                            <label for="fSafety">Safety Stock</label>
+                            <input id="fSafety" class="kontrol" type="number" min="0" v-model.number="form.safety">
+                            <p class="pesan-salah" v-if="errors.safety">{{ errors.safety }}</p>
+                        </div>
+
+                        <div class="fld penuh">
+                            <label>Peringatan &amp; warna</label>
+                            <div class="pilih-peringatan">
+                                <button type="button" v-for="o in opsiPeringatan" :key="o.kunci"
+                                        class="opsi-peringatan" :class="[o.kunci || 'otomatis', { aktif: form.peringatan === o.kunci }]"
+                                        @click="form.peringatan = o.kunci">
+                                    <i :class="o.ikon"></i> {{ o.label }}
+                                </button>
+                            </div>
+                            <p class="pratinjau">Tampilan di tabel:
+                                <span class="status" :class="kunciPratinjau">
+                                    <i :class="infoPeringatan[kunciPratinjau].ikon"></i> {{ infoPeringatan[kunciPratinjau].label }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="modal-aksi">
+                        <button type="button" class="tombol tombol-garis" @click="tutupModal">Batal</button>
+                        <button type="submit" class="tombol tombol-utama"><i class="ri-save-line"></i> Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="toast" v-if="pesan"><i class="ri-checkbox-circle-fill"></i> {{ pesan }}</div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <span>(Tugas 2 STSI4209 Pemrograman Berbasis Web - Vue.js)</span>
+        <div class="ri-copyright-line">
+            <span>Copyright 2026</span>
+        </div>
+    </footer>
+
+    <!-- Script: Vue -> data -> logika (Gabungan.js, BAGIAN 3) -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.min.js"></script>
+    <script src="Javascript/dataBahanAjar.js"></script>
+    <script src="Javascript/Gabungan.js"></script>
+</body>
+</html>
