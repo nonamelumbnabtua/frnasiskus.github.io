@@ -1,6 +1,7 @@
 /* =====================================================================
    DATA2.JS - Penyimpanan akun baru (hasil fitur "Buat Akun")
    ---------------------------------------------------------------------
+<<<<<<< HEAD
    Akun baru disimpan DI FILE INI, pada blok di antara tanda
    AKUN-MULAI dan AKUN-SELESAI di bawah. Blok itu ditulis otomatis
    oleh fungsi simpanDataPenggunaKeFile() setiap ada akun baru.
@@ -18,10 +19,21 @@
    login tetap bisa langsung dipakai.
 
    Akun bawaan di data.js (dataPengguna) tetap dipakai.
+=======
+   CATATAN PENTING:
+   JavaScript di browser TIDAK bisa menulis langsung ke file .js.
+   Karena itu akun baru disimpan di localStorage browser dengan kunci
+   "dataPengguna2". File data2.js inilah yang mengelola datanya:
+   membaca, menyimpan, mencari, dan mengecek email.
+
+   Akun bawaan di data.js (dataPengguna) tetap dipakai.
+   Variabel dataPengguna2 selalu berisi akun baru yang sudah tersimpan.
+>>>>>>> 367b64dba81395dea6ad8271826ae284cd46bcdc
    ===================================================================== */
 
 var KUNCI_AKUN_BARU = "dataPengguna2";
 
+<<<<<<< HEAD
 /* ---------- DATA AKUN (ditulis otomatis) ---------- */
 /*AKUN-MULAI*/
 var akunTersimpanDiFile = [
@@ -65,6 +77,9 @@ var akunTersimpanDiFile = [
 /*AKUN-SELESAI*/
 
 /* Ambil akun baru dari cadangan localStorage */
+=======
+/* Ambil semua akun baru dari penyimpanan */
+>>>>>>> 367b64dba81395dea6ad8271826ae284cd46bcdc
 function ambilAkunBaru() {
   try {
     var teks = localStorage.getItem(KUNCI_AKUN_BARU);
@@ -75,6 +90,7 @@ function ambilAkunBaru() {
   }
 }
 
+<<<<<<< HEAD
 /* Gabungkan beberapa daftar akun, email yang sama hanya diambil sekali */
 function gabungAkun() {
   var hasil = [];
@@ -103,11 +119,19 @@ try {
     localStorage.setItem(KUNCI_AKUN_BARU, JSON.stringify(dataPengguna2));
   }
 } catch (e) {}
+=======
+/* Variabel yang selalu mencerminkan isi penyimpanan */
+var dataPengguna2 = ambilAkunBaru();
+>>>>>>> 367b64dba81395dea6ad8271826ae284cd46bcdc
 
 /* Gabungan akun bawaan (data.js) + akun baru */
 function semuaPengguna() {
   var bawaan = (typeof dataPengguna !== "undefined") ? dataPengguna : [];
+<<<<<<< HEAD
   return bawaan.concat(dataPengguna2).filter(bukanAkunDihapus);
+=======
+  return bawaan.concat(dataPengguna2);
+>>>>>>> 367b64dba81395dea6ad8271826ae284cd46bcdc
 }
 
 /* Cek apakah email sudah terdaftar (tidak peka huruf besar/kecil) */
@@ -148,14 +172,24 @@ function simpanAkunBaru(akun) {
 
   dataPengguna2.push(baru);
 
+<<<<<<< HEAD
   /* cadangan di localStorage (kegagalan di sini tidak fatal) */
   try {
     localStorage.setItem(KUNCI_AKUN_BARU, JSON.stringify(dataPengguna2));
   } catch (e) {}
+=======
+  try {
+    localStorage.setItem(KUNCI_AKUN_BARU, JSON.stringify(dataPengguna2));
+  } catch (e) {
+    dataPengguna2.pop();
+    return { ok: false, pesan: "Penyimpanan browser tidak tersedia." };
+  }
+>>>>>>> 367b64dba81395dea6ad8271826ae284cd46bcdc
 
   return { ok: true, akun: baru };
 }
 
+<<<<<<< HEAD
 
 /* =====================================================================
    MENULIS AKUN BARU KE FILE data2.js
@@ -274,6 +308,12 @@ async function simpanDataPenggunaKeFile() {
 /* Opsional: lihat isi blok akun sebagai teks (jalankan di Console) */
 function exportDataPengguna2() {
   var teks = "var akunTersimpanDiFile = " + JSON.stringify(dataPengguna2, null, 2) + ";";
+=======
+/* Opsional: ekspor akun baru sebagai teks, bisa ditempel ke file ini
+   (jalankan exportDataPengguna2() di Console browser) */
+function exportDataPengguna2() {
+  var teks = "var dataPengguna2 = " + JSON.stringify(ambilAkunBaru(), null, 2) + ";";
+>>>>>>> 367b64dba81395dea6ad8271826ae284cd46bcdc
   console.log(teks);
   return teks;
 }
